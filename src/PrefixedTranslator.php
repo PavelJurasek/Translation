@@ -61,6 +61,10 @@ class PrefixedTranslator implements \Kdyby\Translation\ITranslator
 //	public function translate($message, $count = NULL, $parameters = [], $domain = NULL, $locale = NULL)
 	public function translate($message, ...$parameters): string
 	{
+		if (is_numeric($message)) {
+			return $message;
+		}
+
 		$count = array_shift($parameters);
 		$params = (array) array_shift($parameters);
 		$domain = array_shift($parameters);

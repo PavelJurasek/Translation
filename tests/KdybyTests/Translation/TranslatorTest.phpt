@@ -147,6 +147,13 @@ class TranslatorTest extends \KdybyTests\Translation\TestCase
 		}, \Kdyby\Translation\InvalidArgumentException::class, 'Providing domain "front" while also having the message "//homepage.hello" absolute is not supported');
 	}
 
+	public function testNumeric()
+	{
+		$translator = $this->createTranslator();
+
+		Assert::same('0.5', $translator->translate(0.5));
+	}
+
 }
 
 (new TranslatorTest())->run();
