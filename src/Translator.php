@@ -22,8 +22,6 @@ use Symfony\Component\Translation\Loader\LoaderInterface;
 class Translator extends \Symfony\Component\Translation\Translator implements \Kdyby\Translation\ITranslator
 {
 
-	use \Kdyby\StrictObjects\Scream;
-
 	/**
 	 * @var \Kdyby\Translation\IUserLocaleResolver
 	 */
@@ -128,26 +126,36 @@ class Translator extends \Symfony\Component\Translation\Translator implements \K
 	 * @throws \InvalidArgumentException
 	 * @return string|\Nette\Utils\IHtmlString|\Latte\Runtime\IHtmlString
 	 */
-	public function translate($message, $count = NULL, $parameters = [], $domain = NULL, $locale = NULL)
+//	public function translate($message, $count = NULL, $parameters = [], $domain = NULL, $locale = NULL)
+	public function translate($message, ...$parameters): string
 	{
+		$count = array_shift($parameters);
+		$params = (array) array_shift($parameters);
+		$domain = array_shift($parameters);
+		$locale = array_shift($parameters);
+
 		if ($message instanceof Phrase) {
 			return $message->translate($this);
 		}
 
 		if (is_array($count)) {
 			$locale = ($domain !== NULL) ? (string) $domain : NULL;
-			$domain = ($parameters !== NULL && !empty($parameters)) ? (string) $parameters : NULL;
-			$parameters = $count;
+			$domain = ($params !== NULL && !empty($params)) ? (string) $params : NULL;
+			$params = $count;
 			$count = NULL;
 		}
 
 		if (empty($message)) {
 			return $message;
 
-		} elseif ($message instanceof NetteHtmlString || $message instanceof LatteHtmlString) {
+		}
+
+		if ($message instanceof NetteHtmlString || $message instanceof LatteHtmlString) {
 			$this->logMissingTranslation($message->__toString(), $domain, $locale);
 			return $message; // what now?
-		} elseif (is_int($message)) {
+		}
+
+		if (is_int($message)) {
 			$message = (string) $message;
 		}
 
@@ -168,16 +176,16 @@ class Translator extends \Symfony\Component\Translation\Translator implements \K
 		}
 
 		$tmp = [];
-		foreach ($parameters as $key => $val) {
+		foreach ($params as $key => $val) {
 			$tmp['%' . trim($key, '%') . '%'] = $val;
 		}
-		$parameters = $tmp;
+		$params = $tmp;
 
 		if ($count !== NULL && is_scalar($count)) {
-			return $this->transChoice($message, $count, $parameters + ['%count%' => $count], $domain, $locale);
+			return $this->transChoice($message, $count, $params + ['%count%' => $count], $domain, $locale);
 		}
 
-		return $this->trans($message, $parameters, $domain, $locale);
+		return $this->trans($message, $params, $domain, $locale);
 	}
 
 	/**

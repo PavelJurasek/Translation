@@ -9,8 +9,6 @@
 namespace KdybyTests\Translation;
 
 use Kdyby\Translation\Phrase;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
 use Nette\Application\UI\ITemplateFactory;
 use Nette\Localization\ITranslator;
 use Tester\Assert;
@@ -39,13 +37,14 @@ class TranslateMacrosTest extends \KdybyTests\Translation\TestCase
 
 		$this->template = $container->getByType(ITemplateFactory::class)
 			->createTemplate(new ControlMock());
+		$this->template->setTranslator($this->translator);
 	}
 
 	public function testRenderTranslate()
 	{
 		$this->template->setFile(__DIR__ . '/data/files/Homepage.default.latte');
 
-		Assert::same('Ahoj %name%
+		Assert::match('%a?%Ahoj %name%
 Ahoj Peter
 Ahoj Peter
 
@@ -57,7 +56,7 @@ front.missingKey.namedHello
 front.missingKey.namedHello
 front.missingKey.namedHello
 
-Helloes %name%
+%a?%Helloes %name%
 Helloes Peter
 Hello Peter|Helloes Peter
 
@@ -70,7 +69,7 @@ front.missingKey.namedHelloCounting' . "\n", $this->template->__toString());
 	{
 		$this->template->setFile(__DIR__ . '/data/files/Article.noescape.latte');
 
-		Assert::same('Ahoj &lt;b&gt;%name%&lt;/b&gt;
+		Assert::match('%a%Ahoj &lt;b&gt;%name%&lt;/b&gt;
 Ahoj &lt;b&gt;Peter&lt;/b&gt;
 Ahoj &lt;b&gt;Peter&lt;/b&gt;
 
@@ -82,7 +81,7 @@ front.missingKey.namedHello
 front.missingKey.namedHello
 front.missingKey.namedHello
 
-Helloes &lt;i&gt;%name%&lt;/i&gt;
+%a%Helloes &lt;i&gt;%name%&lt;/i&gt;
 Helloes &lt;i&gt;Peter&lt;/i&gt;
 Hello &lt;i&gt;Peter&lt;/i&gt;|Helloes &lt;i&gt;Peter&lt;/i&gt;
 
@@ -118,7 +117,7 @@ front.missingKey.namedHelloCounting' . "\n", $this->template->__toString());
 		$this->template->setFile(__DIR__ . '/data/files/Order.default.latte');
 
 		Assert::match('
-Ahoj %name%
+%a%Ahoj %name%
 Ahoj Peter
 Ahoj Peter
 
@@ -132,7 +131,7 @@ front.missingKey.namedHello
 front.missingKey.namedHello
 
 %A?%
-Helloes %name%
+%a%Helloes %name%
 Helloes Peter
 Hello Peter|Helloes Peter
 
@@ -144,11 +143,6 @@ front.missingKey.namedHelloCounting' . "\n", $this->template->__toString());
 
 	public function testPhraseInFlashMessage()
 	{
-		$logger = new Logger('translator');
-		$handler = new TestHandler();
-		$logger->pushHandler($handler);
-		$this->translator->injectPsrLogger($logger);
-
 		$this->template->setFile(__DIR__ . '/data/files/flashMessage.latte');
 		$this->template->setParameters([
 			'flashes' => unserialize(serialize([
@@ -163,12 +157,10 @@ front.missingKey.namedHelloCounting' . "\n", $this->template->__toString());
 			])),
 		]);
 
-		$expected = "\tHeslo vám bylo zasláno na email filip@prochazka.su\n" .
+		$expected = "\t%a%Heslo vám bylo zasláno na email filip@prochazka.su\n" .
 			"\tHeslo vám pošleme na email filip@prochazka.su\n\n";
 
 		Assert::match($expected, $this->template->__toString());
-
-		Assert::same([], $handler->getRecords());
 	}
 
 }

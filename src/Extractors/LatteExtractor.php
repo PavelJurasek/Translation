@@ -19,8 +19,6 @@ use Symfony\Component\Translation\MessageCatalogue;
 class LatteExtractor implements \Symfony\Component\Translation\Extractor\ExtractorInterface
 {
 
-	use \Kdyby\StrictObjects\Scream;
-
 	/**
 	 * @var string
 	 */
@@ -46,7 +44,6 @@ class LatteExtractor implements \Symfony\Component\Translation\Extractor\Extract
 	{
 		$buffer = NULL;
 		$parser = new Parser();
-		$parser->shortNoEscape = TRUE;
 
 		foreach ($tokens = $parser->parse(file_get_contents($file)) as $token) {
 			if ($token->type !== $token::MACRO_TAG || !in_array($token->name, ['_', '/_'], TRUE)) {

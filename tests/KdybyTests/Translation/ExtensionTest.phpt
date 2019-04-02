@@ -9,8 +9,6 @@
 namespace KdybyTests\Translation;
 
 use Kdyby\Translation\Translator as KdybyTranslator;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
 use Nette\Localization\ITranslator;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Tester\Assert;
@@ -58,27 +56,6 @@ class ExtensionTest extends \KdybyTests\Translation\TestCase
 		Assert::false(array_key_exists('po', $loaders));
 		Assert::false(array_key_exists('dat', $loaders));
 		Assert::false(array_key_exists('csv', $loaders));
-	}
-
-	public function testLogging()
-	{
-		$sl = $this->createContainer('logging');
-
-		$logger = $sl->getByType(Logger::class);
-		$logger->pushHandler($loggingHandler = new TestHandler());
-
-		$translator = $sl->getByType(KdybyTranslator::class);
-		Assert::same('front.not.found', $translator->translate('front.not.found'));
-
-		list($record) = $loggingHandler->getRecords();
-		Assert::same('Missing translation', $record['message']);
-		Assert::same(Logger::NOTICE, $record['level']);
-		Assert::same('translation', $record['channel']);
-		Assert::same([
-			'message' => 'front.not.found',
-			'domain' => 'front',
-			'locale' => 'en',
-		], $record['context']);
 	}
 
 }

@@ -11,7 +11,6 @@
 namespace KdybyTests\Translation;
 
 use Kdyby\Console\DI\ConsoleExtension;
-use Kdyby\Monolog\DI\MonologExtension;
 use Kdyby\Translation\DI\TranslationExtension;
 use Nette\Configurator;
 use Nette\Localization\ITranslator;
@@ -29,7 +28,6 @@ abstract class TestCase extends \Tester\TestCase
 		$config->setTempDirectory(TEMP_DIR);
 		$config->addParameters(['appDir' => __DIR__]);
 		TranslationExtension::register($config);
-		MonologExtension::register($config);
 		ConsoleExtension::register($config);
 		$config->addConfig(__DIR__ . '/../nette-reset.neon');
 

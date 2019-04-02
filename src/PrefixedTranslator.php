@@ -16,8 +16,6 @@ use Nette\Utils\Strings;
 class PrefixedTranslator implements \Kdyby\Translation\ITranslator
 {
 
-	use \Kdyby\StrictObjects\Scream;
-
 	/**
 	 * @var \Kdyby\Translation\ITranslator|\Kdyby\Translation\Translator|\Kdyby\Translation\PrefixedTranslator
 	 */
@@ -60,8 +58,14 @@ class PrefixedTranslator implements \Kdyby\Translation\ITranslator
 	 * @param string|NULL $locale
 	 * @return string|\Nette\Utils\IHtmlString|\Latte\Runtime\IHtmlString
 	 */
-	public function translate($message, $count = NULL, $parameters = [], $domain = NULL, $locale = NULL)
+//	public function translate($message, $count = NULL, $parameters = [], $domain = NULL, $locale = NULL)
+	public function translate($message, ...$parameters): string
 	{
+		$count = array_shift($parameters);
+		$params = (array) array_shift($parameters);
+		$domain = array_shift($parameters);
+		$locale = array_shift($parameters);
+
 		$translationString = ($message instanceof Phrase ? $message->message : $message);
 		$prefix = $this->prefix . '.';
 
@@ -76,12 +80,12 @@ class PrefixedTranslator implements \Kdyby\Translation\ITranslator
 
 		if (is_array($count)) {
 			$locale = $domain !== NULL ? (string) $domain : NULL;
-			$domain = $parameters !== NULL && !empty($parameters) ? (string) $parameters : NULL;
-			$parameters = $count;
+			$domain = $params !== NULL && !empty($params) ? (string) $params : NULL;
+			$params = $count;
 			$count = NULL;
 		}
 
-		return $this->translator->translate($prefix . $translationString, $count, (array) $parameters, $domain, $locale);
+		return $this->translator->translate($prefix . $translationString, $count, (array) $params, $domain, $locale);
 	}
 
 	/**
