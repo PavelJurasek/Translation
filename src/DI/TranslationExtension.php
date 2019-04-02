@@ -378,7 +378,7 @@ class TranslationExtension extends \Nette\DI\CompilerExtension
 	protected function loadResourcesFromDirs($dirs)
 	{
 		$builder = $this->getContainerBuilder();
-		$config = $this->getConfig();
+		$config = \Nette\DI\Config\Helpers::merge($this->getConfig(), Helpers::expand($this->defaults, $builder->parameters));
 
 		$whitelistRegexp = KdybyTranslator::buildWhitelistRegexp($config['whitelist']);
 		$translator = $builder->getDefinition($this->prefix('default'));
